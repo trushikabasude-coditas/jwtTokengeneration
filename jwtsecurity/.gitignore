@@ -1,0 +1,75 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+@RestController
+public class TokenController {
+
+    private TokenService tokenService;
+
+    public TokenController(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @GetMapping("/generate-token")
+    public String generateToken(@RequestParam String username) {
+        return tokenService.generateToken(username);
+    }
+}@Service
+ public class TokenService {
+
+     private final JwtUtil jwtUtil;
+
+     public TokenService(JwtUtil jwtUtil) {
+         this.jwtUtil = jwtUtil;
+     }
+
+     public String generateToken(String username) {
+         String token = jwtUtil.generateToken(username);
+         System.out.println(token); // print in console
+         return token;
+     }
+ }
+ @Component
+ public class JwtUtil {
+
+     private String SECRET_KEY = "secret";
+
+     public String generateToken(String username) {
+         return Jwts.builder()
+                 .setSubject(username)
+                 .setIssuedAt(new Date())
+                 .setExpiration(new Date(System.currentTimeMillis() + 600000)) // 10 min
+                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                 .compact();
+     }
+ }

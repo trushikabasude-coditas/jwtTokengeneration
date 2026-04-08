@@ -1,0 +1,73 @@
+What is Auth
+Topics to Study:
+What is OAuth2, and how does it work?
+Key components of OAuth2: Resource Owner, Resource
+Server, Authorization Server.
+What is JWT, its structure (Header, Payload, Signature), and how it works?
+->AllSolution
+1
+OAuth2
+->It is an Authoraization Protocal that allows the 2rd party application
+to access the resourcess on the behalf of the user.
+There are 4 roles of OAuth:
+Resource Owner-The user who owns the resources whoch is being accessedn by the client
+Client:Applicatiipn requesting for the resource
+Authoraization server: server which ises the token to client once authoraiatio is completed
+Resource server: The server holding the resources
+
+create spring boot  add dependency  goggle credential and implement Oauth for api
+                                                                            u
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Assignment Idea:
+Research the roles of Resource Owner, Resource Server,
+and Authorization Server.
+Explain with examples how JWT is created and verified.
+2. Advantages and Use Cases:
+
+Topics to Study:
+Benefits of OAuth2 for REST API security.
+Why JWT is preferred for stateless architectures.
+Scenarios where OAuth2 and JWT are best suited.
+
+Topics to Study:
+Token revocation challenges in stateless protocols.
+Handling refresh tokens and long-running sessions securely.Security considerations for storing tokens on the client side.Assignment Idea:
+Propose solutions to mitigate the limitations of stateless
+tokens.
+Write a small essay on secure storage Topics to Study:
+Setting up Spring Boot for OAuth2 and JWT authentication.Configuration files and dependencies in Maven for Spring Boot.
+Assignment Idea:
+Create a simple Spring Boot application with OAuth2 and
+JWT.
+Implement basic authentication using a mock Resource
+Server and Authorization Server.
+5. Debugging and Testing:
+Topics to Study:
+Tools for debugging OAuth2 and JWT-based applications
+(Postman, JWT.io).
+Common issues in implementing OAuth2/JWT and how to resolve them.
+Assignment Idea:
+Use Postman to simulate authentication with an OAuth2
+server.
+Test JWT validation with various payloads and signatures.
