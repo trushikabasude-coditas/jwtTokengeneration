@@ -31,45 +31,116 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+You, Now
+@Component
+public class JwtFilter extends OncePerRequestFilter {
+
+    private final JwtUtil jwtUtil;
+    private final UserRepository repo;
+
+    public JwtFilter(JwtUtil jwtUtil, UserRepository repo) {
+        this.jwtUtil = jwtUtil;
+        this.repo = repo;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain)
+            throws ServletException, IOException {
+
+        if (request.getRequestURI().startsWith("/auth")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        String header = request.getHeader("Authorization");
+
+        if (header == null || !header.startsWith("Bearer ")) {
+            response.setStatus(401);
+            response.getWriter().write("Missing token");
+            return;
+        }
+
+        String token = header.substring(7);
+
+        if (!jwtUtil.validateToken(token)) {
+            response.setStatus(401);
+            response.getWriter().write("Invalid token");
+            return;
+        }
+
+        String username = jwtUtil.extractUsername(token);
+
+        if (repo.findByUsername(username).isEmpty()) {
+            response.setStatus(401);
+            response.getWriter().write("User not found");
+            return;
+        }
+
+        chain.doFilter(request, response);
+    }
+}
+
+@Component
+public class JwtUtil {
+
+    private final String SECRET = "secret";
+
+    public String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 600000))
+                .signWith(SignatureAlgorithm.HS256, SECRET)
+                .compact();
+    }
+
+    public String extractUsername(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}
 @RestController
-public class TokenController {
+@RequestMapping("/api")
+public class AppController {
 
-    private TokenService tokenService;
+    private final AuthService service;
 
-    public TokenController(TokenService tokenService) {
-        this.tokenService = tokenService;
+    public AppController(AuthService service) {
+        this.service = service;
+    }
+    @PostMapping("/register")
+    public String register(@RequestBody RegisterRequest req) {
+        return service.register(req);
+    }
+    @PostMapping("/login")
+    public AuthResponse login(@RequestBody LoginRequest req) {
+        return service.login(req);
     }
 
-    @GetMapping("/generate-token")
-    public String generateToken(@RequestParam String username) {
-        return tokenService.generateToken(username);
+    @GetMapping("/user")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public String userApi() {
+        return "User API working";
     }
-}@Service
- public class TokenService {
-
-     private final JwtUtil jwtUtil;
-
-     public TokenService(JwtUtil jwtUtil) {
-         this.jwtUtil = jwtUtil;
-     }
-
-     public String generateToken(String username) {
-         String token = jwtUtil.generateToken(username);
-         System.out.println(token); // print in console
-         return token;
-     }
- }
- @Component
- public class JwtUtil {
-
-     private String SECRET_KEY = "secret";
-
-     public String generateToken(String username) {
-         return Jwts.builder()
-                 .setSubject(username)
-                 .setIssuedAt(new Date())
-                 .setExpiration(new Date(System.currentTimeMillis() + 600000)) // 10 min
-                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
-                 .compact();
-     }
- }
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String adminApi() {
+        return "Admin API working";
+    }
+}
